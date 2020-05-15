@@ -24,6 +24,7 @@ const server = http.createServer((req, res) => {
                     res.writeHead(404, {'Content-Type': 'text/html'});
                     res.write(`<html><body><h1>Error 404: ${fileUrl} not found</h1></body></html>`);
                     res.end();
+                    return;
                 }
 
                 res.writeHead(200, {'Content-Type': 'text/html'});

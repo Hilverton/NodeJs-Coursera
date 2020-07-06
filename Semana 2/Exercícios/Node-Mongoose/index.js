@@ -7,22 +7,20 @@ const connect = mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopolog
 connect.then(() => {
     console.log('Connected correctly to server');
 
-    let newDish = Dishes({
+    Dishes.create({
         name: 'Uthappizza',
         description: 'test'
-    });
+    })
+    .then(dish => {
+        console.log(dish);
 
-    newDish.save()
-            .then(dish => {
-                console.log(dish);
+        return Dishes.find({});
+    })
+    .then(dishes => {
+        console.log(dishes);
 
-            return Dishes.find({});
-            })
-            .then(dishes => {
-                console.log(dishes);
-
-            return Dishes.deleteOne({});
-            })
-            .then(() => mongoose.connection.close())
-            .catch(err => console.log(err));
+        return Dishes.deleteOne({});
+    })
+    .then(() => mongoose.connection.close())
+    .catch(err => console.log(err));
 });

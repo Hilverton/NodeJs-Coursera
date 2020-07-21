@@ -19,9 +19,12 @@ connect.then((db) => {
   console.log("Connected correctly to server");
 }, (err) => { console.log(err); });
 
+const indexRouter = require('./routes/indexRouter');
+const userRouter = require('./routes/usersRouter');
 const dishRouter = require('./routes/dishRouter');
 const promoRouter = require('./routes/promoRouter');
 const leaderRouter = require('./routes/leaderRouter');
+
 const app = express();
 
 app.use(morgan('dev'));
@@ -37,37 +40,22 @@ app.use(session({
   store: new FileStore()
 }));
 
+app.use('/', indexRouter);
+app.use('/users', userRouter);
+
 function auth(req, res, next) {
   console.log(req.session);
   if (!req.session.user) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      let err = new Error('You are not authenticated!');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      next(err);
-      return;
-    }
-    const [username, password] = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    if (username === 'admin' && password === 'password') {
-      req.session.user = 'admin';
-      next(); //authorized
-    } else {
-      let err = new Error('You are not authenticated!');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      next(err);
-      return;
-    }
+    const err = new Error('You are not authenticated!');
+    err.status = 403;
+    return next(err);
   } else {
-    if (req.session.user === 'admin') {
-      console.log('req.session: ',req.session);
+    if (req.session.user === 'authenticated') {
       next();
     } else {
       let err = new Error('You are not authenticated!');
-      err.status = 401;
-      next(err);
-      return;
+      err.status = 403;
+      return next(err);
     }
   }
 }
